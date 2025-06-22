@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambuj Kumar Maurya - Creative Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /*
+        ==============================================
+        * Custom Styles & Creative Animations
+        ==============================================
+        */
+        :root {
+            --bg-main: #0a0a1a; /* Dark space background */
+            --bg-glass: rgba(10, 10, 26, 0.4);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0b0;
+            --accent-primary: #8338ec;
+            --accent-secondary: #ff006e;
+            --accent-glow: rgba(131, 56, 236, 0.5);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            cursor: none;
+        }
+        
+        h1, h2, h3, .nav-link, .cta-button {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Pre-loader */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--bg-main);
+            z-index: 99999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out 0.8s, visibility 0.5s ease-out 0.8s;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .loader-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .loader-circle {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            position: absolute;
+            transform: scale(0);
+            animation: expand-circle 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .loader-text {
+            color: white;
+            position: relative;
+            z-index: 10;
+            opacity: 0;
+            animation: fade-in-text 0.5s ease 0.3s forwards;
+        }
+        .loader-text .welcome {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+        .loader-text .name {
+             font-family: 'Space Grotesk', sans-serif;
+             font-size: 3rem;
+             font-weight: 700;
+             letter-spacing: 2px;
+        }
+        
+        @keyframes expand-circle {
+            0% { transform: scale(0); }
+            100% { transform: scale(35); }
+        }
+        @keyframes fade-in-text {
+            to { opacity: 1; }
+        }
+
+        /* 3D Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1.5s ease 1s;
+        }
+        body.loaded #bg-canvas {
+            opacity: 1;
+        }
+        
+        /* Animated Ripple Cursor */
+        .cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            pointer-events: none;
+            z-index: 10000;
+            opacity: 0;
+        }
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-secondary);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .cursor-ring {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--accent-primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: cursor-ripple 1s infinite;
+        }
+        @keyframes cursor-ripple {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+        body.loaded .cursor {
+            opacity: 1;
+        }
+
+
+        /* Glassmorphism Header */
+        #header {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        /* Navigation Links */
+        .nav-link:hover { color: var(--accent-primary); }
+        .nav-link::after {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        
+        /* Section Animation */
+        .section, .project-item {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s cubic-bezier(0.645, 0.045, 0.355, 1), transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+        .section.visible, .project-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Animated Section Title */
+        .section-title::before {
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+        }
+        .section.visible .section-title::before { opacity: 1; }
+
+        /* Hero Section Text Animation */
+        .hero-h1 span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px) rotate(10deg);
+            animation: reveal-char 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes reveal-char { to { opacity: 1; transform: translateY(0) rotate(0); } }
+        .hero-p, .hero-buttons {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fade-up 1s ease-out forwards;
+        }
+        @keyframes fade-up { to { opacity: 1; transform: translateY(0); } }
+
+        /* Profile Picture with Animated Rings */
+        .profile-image-container {
+            position: relative;
+            width: clamp(250px, 100%, 350px);
+            height: clamp(250px, 100%, 350px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .profile-image-ring {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border-style: solid;
+            transform: translate(-50%, -50%);
+        }
+        .ring-1 {
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--accent-primary);
+            animation: rotate-ring 20s linear infinite, pulse-ring 4s ease-in-out infinite;
+        }
+        .ring-2 {
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            border: 1px dashed var(--accent-secondary);
+            animation: rotate-ring 30s linear infinite reverse;
+        }
+        .ring-3 {
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            border: 1px dotted var(--accent-primary);
+             opacity: 0.5;
+            animation: rotate-ring 25s linear infinite, pulse-ring-2 5s ease-in-out infinite;
+        }
+
+        @keyframes rotate-ring {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes pulse-ring {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.7; }
+        }
+        @keyframes pulse-ring-2 {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(0.95); opacity: 1; }
+        }
+
+        .profile-image {
+            width: 85%;
+            height: 85%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 1.5rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0, 0.1);
+        }
+        .glass-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* Contact Form Styles */
+        .form-input, .form-textarea {
+            background-color: rgba(10, 10, 26, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+       
+        /* Skill Badges */
+        .skill-badge:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-primary);
+            color: white;
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
+
+        /* CTA Button & Magnetic Effect */
+        .cta-button {
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            box-shadow: 0 4px 20px rgba(131, 56, 236, 0.3);
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 7px 30px rgba(131, 56, 236, 0.5);
+        }
+
+        /* Social Icons */
+        .social-icon:hover {
+            transform: translateY(-5px);
+            color: var(--accent-primary);
+        }
+        
+        html { scroll-behavior: smooth; }
+        #mobile-menu { background-color: var(--bg-main); border-top-color: var(--border-glass); }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <!-- Pre-loader -->
+    <div id="loader">
+        <div class="loader-container">
+            <div class="loader-circle"></div>
+            <div class="loader-text">
+                <div class="welcome">Welcome to my portfolio</div>
+                <div class="name">AMBUJ</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cursor">
+        <div class="cursor-dot"></div>
+        <div class="cursor-ring"></div>
+    </div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Header & Navigation -->
+    <header id="header" class="sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 tracking-wider">AKM</a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="nav-link font-semibold">About</a>
+                <a href="#skills" class="nav-link font-semibold">Skills</a>
+                <a href="#projects" class="nav-link font-semibold">Projects</a>
+                <a href="#education" class="nav-link font-semibold">Education</a>
+                <a href="#contact" class="nav-link font-semibold">Contact</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden flex items-center"><i class="fas fa-bars text-2xl text-text-primary"></i></button>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden px-6 pt-2 pb-4 space-y-2">
+            <a href="#about" class="block nav-link py-2">About</a>
+            <a href="#skills" class="block nav-link py-2">Skills</a>
+            <a href="#projects" class="block nav-link py-2">Projects</a>
+            <a href="#education" class="block nav-link py-2">Education</a>
+            <a href="#contact" class="block nav-link py-2">Contact</a>
+        </div>
+    </header>
+
+    <main class="relative z-10 container mx-auto px-6">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex items-center justify-center text-center">
+            <div class="max-w-4xl">
+                <p class="text-lg text-accent-primary mb-4 hero-p" style="animation-delay: 1.2s;">Hi there, I'm</p>
+                <h1 class="text-5xl sm:text-4xl md:text-7xl font-bold text-text-primary hero-h1"></h1>
+                <p class="text-lg md:text-xl text-text-secondary mt-8 max-w-3xl mx-auto hero-p" style="animation-delay: 2.0s;">
+                    A Full Stack Developer crafting seamless and intelligent digital realities. I transform complex ideas into scalable, user-centric, and AI-driven web experiences.
+                </p>
+                <div class="mt-12 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6 hero-buttons" style="animation-delay: 2.2s;">
+                    <a href="#projects" class="cta-button text-center font-bold py-4 px-8 rounded-full shadow-lg text-lg">Explore My Work</a>
+                    <a href="Ambuj25cv.pdf" download="AmbujKumarMaurya-CV.pdf" class="cta-button secondary text-center font-bold py-4 px-8 rounded-full">
+                        Download CV <i class="fas fa-download ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section id="about" class="py-24 md:py-32 section">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-center mb-16">Who I Am</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-16">
+                <div class="md:w-1/3 flex justify-center">
+                    <div class="profile-image-container">
+                        <div class="profile-image-ring ring-1"></div>
+                        <div class="profile-image-ring ring-2"></div>
+                        <div class="profile-image-ring ring-3"></div>
+                        <img src="Ambujkm.jpg" alt="Ambuj Kumar Maurya" class="profile-image" onerror="this.onerror=null;this.src='https://placehold.co/400x400/8338ec/ffffff?text=AKM';">
+                    </div>
+                </div>
+                <div class="md:w-2/3 text-lg text-text-secondary space-y-5 text-center md:text-left">
+                     <p>I'm a detail-oriented Full Stack Developer and Computer Science student, fueled by a deep-seated passion for building things that live on the internet. My journey into technology wasn't just about learning to code; it was about discovering how to translate abstract concepts into tangible, interactive digital solutions that solve real-world problems.</p>
+                    <p>My expertise lies in architecting robust applications from the ground up. I thrive in the sweet spot where front-end creativity meets back-end logic, specializing in scalable architectures, RESTful APIs, and intelligent AI integrations. Whether it's developing a real-time chat platform or a complex system monitoring dashboard, my goal is always to deliver clean, efficient code and an exceptional, intuitive user experience.</p>
+                    <p>Beyond the code, I am a lifelong learner, perpetually exploring new frameworks and the evolving landscape of artificial intelligence. I'm particularly fascinated by the potential of Large Language Models to create smarter, more personalized, and assistive applications.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="py-24 md:py-32 section">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-center mb-16">Core Technologies</h2>
+            <div class="mt-12 flex flex-wrap justify-center items-center gap-5 sm:gap-6">
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">HTML&JavaScript</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">Python</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">Tailwind CSS</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">PHP</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">MySQL</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">C/C++</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">Java</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">Git & GitHub</span>
+                <span class="skill-badge font-semibold py-3 px-6 rounded-full text-lg">AI & APIs</span>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-24 md:py-32 section">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-center mb-16">Featured Creations</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mt-12">
+                 <!-- Project Cards will be injected here by JS. This is just a template -->
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="education" class="py-24 md:py-32 section">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-center mb-16">Learning Journey</h2>
+            <div class="mt-12 max-w-4xl mx-auto grid md:grid-cols-1 gap-8">
+                 <div class="glass-card p-8">
+                    <div class="flex justify-between items-start">
+                        <div>
+                           <h3 class="text-2xl font-bold text-text-primary">Lovely Professional University</h3>
+                           <p class="text-accent-primary font-semibold text-lg">B.Tech in Computer Science & Engineering</p>
+                        </div>
+                        <span class="text-sm font-semibold text-text-secondary whitespace-nowrap">2023 - 2027</span>
+                    </div>
+                    <p class="text-text-secondary mt-2">Specializing in full-stack development and artificial intelligence. Core coursework includes advanced algorithms, database management, software engineering principles.</p>
+                </div>
+                 <div class="glass-card p-8">
+                     <div class="flex justify-between items-start">
+                        <div>
+                           <h3 class="text-2xl font-bold text-text-primary">S.N. Public School</h3>
+                           <p class="text-accent-primary font-semibold text-lg">CBSE Class XII (Science Stream)</p>
+                        </div>
+                         <span class="text-sm font-semibold text-text-secondary whitespace-nowrap">2022</span>
+                    </div>
+                    <p class="text-text-secondary mt-2">Completed higher secondary education with a focus on Physics, Chemistry, and Mathematics, which built a strong analytical foundation for my technical pursuits.</p>
+                </div>
+                <div class="glass-card p-8">
+                     <div class="flex justify-between items-start">
+                         <div>
+                           <h3 class="text-2xl font-bold text-text-primary">S.N. Public School</h3>
+                           <p class="text-accent-primary font-semibold text-lg">CBSE Class X</p>
+                        </div>
+                         <span class="text-sm font-semibold text-text-secondary whitespace-nowrap">2020</span>
+                    </div>
+                    <p class="text-text-secondary mt-2">Established a solid academic base and developed a keen interest in science and technology which guided my career path towards computer science.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-24 md:py-32 section">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-center mb-10">Let's Collaborate</h2>
+             <div class="max-w-3xl mx-auto glass-card p-8 sm:p-12">
+                <form id="contact-form" action="https://formspree.io/f/xeokknrz" method="POST">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <input type="text" name="name" class="form-input w-full" placeholder="Your Name" required>
+                        <input type="email" name="email" class="form-input w-full" placeholder="Your Email" required>
+                        <input type="tel" name="phone" class="form-input w-full" placeholder="Phone Number">
+                        <input type="text" name="address" class="form-input w-full" placeholder="Your Address">
+                    </div>
+                    <div class="mb-6">
+                        <input type="text" name="title" class="form-input w-full" placeholder="Subject / Title" required>
+                    </div>
+                    <div class="mb-6">
+                        <textarea name="description" rows="5" class="form-textarea w-full" placeholder="Tell me about your project..."></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="cta-button inline-block font-bold py-4 px-12 rounded-full shadow-lg text-lg">
+                            Send Message <i class="fas fa-paper-plane ml-2"></i>
+                        </button>
+                    </div>
+                </form>
+                <p id="form-status" class="text-center mt-6"></p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 relative z-10">
+        <div class="container mx-auto px-6 text-center text-text-secondary">
+            <div class="flex justify-center space-x-8 mb-6">
+                <a href="https://github.com/21ambuj" target="_blank" rel="noopener noreferrer" class="social-icon text-2xl"><i class="fab fa-github"></i></a>
+                <a href="https://linkedin.com/in/21ambuj" target="_blank" rel="noopener noreferrer" class="social-icon text-2xl"><i class="fab fa-linkedin"></i></a>
+            </div>
+            <p class="text-sm">Designed & Built by Ambuj Kumar Maurya &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 0. Pre-loader ---
+            const loader = document.getElementById('loader');
+            const body = document.body;
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    body.classList.add('loaded');
+                    body.style.overflowY = 'auto'; 
+                }, 1000); 
+            });
+            body.style.overflowY = 'hidden';
+
+
+            // --- 1. Animated Ripple Cursor ---
+            const cursor = document.querySelector('.cursor');
+            if (cursor) {
+                document.addEventListener('mousemove', e => {
+                    cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+                });
+            }
+
+            // --- 2. Mobile Menu ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            });
+
+            // --- 3. Active Nav Link on Scroll ---
+            const sectionsForNav = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('header nav a');
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sectionsForNav.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+             // --- 4. Section & Project Fade-in on Scroll ---
+            const projectData = [
+                { title: 'MyPortfolio', desc: 'A full-fledged movie booking system with real-time seat selection, dynamic pricing, user authentication, and an AI-powered live chat assistant.', link: '#', repo: 'https://github.com/21ambuj/MoviesNow---Online-Ticket-Booking-Plateform', type: 'View Project' },
+                { title: 'ChatIQ - AI Chat App', desc: 'A real-time messaging application featuring voice notes, media sharing, and intelligent, context-aware AI-driven responses.', link: 'https://chatiqai.netlify.app/', repo: 'https://github.com/21ambuj', type: 'Live Demo' },
+                { title: 'MoviesNow Ticket Platform', desc: 'A full-fledged movie booking system with real-time seat selection, dynamic pricing, user authentication, and an AI-powered live chat assistant.', link: '#', repo: 'https://github.com/21ambuj/MoviesNow---Online-Ticket-Booking-Plateform', type: 'View Project' },
+                { title: 'Live OS Monitor', desc: 'A lightweight system tool to monitor core OS metrics like CPU usage, memory allocation, and running processes with a live data visualization dashboard.', link: '#', repo: 'https://github.com/21ambuj/REAL_TIME_PROCESS_MONITORING', type: 'View Project' },
+                { title: 'E-Commerce "ShopSphere"', desc: 'A comprehensive e-commerce platform with product catalogs, shopping cart, secure payments via Stripe, and an admin dashboard.', link: '#', repo: 'https://github.com/21ambuj', type: 'View Project' },
+                { title: 'AI Code Reviewer', desc: 'A web tool that leverages the OpenAI API to analyze code snippets, identify bugs, suggest optimizations, and explain complex code.', link: '#', repo: 'https://github.com/21ambuj', type: 'Try It Out' },
+                { title: 'Real-Time Collab Board', desc: 'A collaborative whiteboard application using WebSockets that allows multiple users to draw, write text, and share ideas simultaneously.', link: '#', repo: 'https://github.com/21ambuj', type: 'View Project' },
+                { title: 'Kanban Task Manager', desc: 'A Trello-like task management board with drag-and-drop functionality for cards and lists, user assignments, and project progress tracking.', link: '#', repo: 'https://github.com/21ambuj', type: 'Live Demo' },
+                { title: 'Weather App "Atmo"', desc: 'A sleek, modern weather dashboard using a public API to provide current weather, 5-day forecasts, and animated weather icons for any city.', link: '#', repo: 'https://github.com/21ambuj', type: 'View Project' },
+                { title: 'Personal Finance Tracker', desc: 'A web app for tracking income and expenses, featuring data visualization with Chart.js to display spending habits and budget breakdowns.', link: '#', repo: 'https://github.com/21ambuj', type: 'View Project' },
+                { title: 'Recipe Finder "Crave"', desc: 'An application that helps users discover recipes by entering the ingredients they have on hand, powered by the Spoonacular API.', link: '#', repo: 'https://github.com/21ambuj', type: 'Find a Recipe' },
+                { title: 'URL Shortener "LinkZip"', desc: 'A full-stack URL shortening service similar to bit.ly, with custom link generation and analytics dashboard to track clicks.', link: '#', repo: 'https://github.com/21ambuj', type: 'View Project' },
+                { title: 'Portfolio Generator', desc: 'A meta-project! A web application that allows other developers to input their details and generate a customizable, responsive portfolio website.', link: '#', repo: 'https://github.com/21ambuj', type: 'Build Yours' }
+            ];
+
+            const projectGrid = document.querySelector('#projects .grid');
+            projectData.forEach(p => {
+                const projectEl = document.createElement('div');
+                projectEl.className = 'project-item';
+                projectEl.innerHTML = `
+                    <div class="glass-card p-8 h-full flex flex-col">
+                        <h3 class="text-2xl font-bold mb-3 text-text-primary">${p.title}</h3>
+                        <p class="text-text-secondary mb-5 flex-grow">${p.desc}</p>
+                        <div class="mt-auto pt-4 flex justify-between items-center">
+                            <a href="${p.link}" target="_blank" rel="noopener noreferrer" class="text-accent-primary hover:underline font-bold">${p.type} <i class="fas fa-arrow-right ml-1"></i></a>
+                            <a href="${p.repo}" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-accent-primary"><i class="fab fa-github text-2xl"></i></a>
+                        </div>
+                    </div>
+                `;
+                projectGrid.appendChild(projectEl);
+            });
+            
+            const animatedElements = document.querySelectorAll('.section, .project-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        const delay = entry.target.classList.contains('project-item') ? (index % 3) * 150 : 0;
+                        setTimeout(() => { entry.target.classList.add('visible'); }, delay);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            animatedElements.forEach(el => observer.observe(el));
+            
+            // --- 5. Hero Text Animation ---
+            const heroTitle = "Ambuj Kumar Maurya.";
+            const heroTitleEl = document.querySelector('.hero-h1');
+            heroTitle.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                span.style.animationDelay = `${index * 0.05 + 1.2}s`;
+                heroTitleEl.appendChild(span);
+            });
+
+            // --- 6. Magnetic Buttons ---
+            document.querySelectorAll('.cta-button').forEach(button => {
+                button.addEventListener('mousemove', e => {
+                    const rect = button.getBoundingClientRect();
+                    const x = (e.clientX - rect.left - rect.width / 2) * 0.3;
+                    const y = (e.clientY - rect.top - rect.height / 2) * 0.3;
+                    button.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+                });
+                button.addEventListener('mouseleave', () => {
+                    button.style.transform = 'translate(0, 0) scale(1)';
+                });
+            });
+            
+            // --- 7. Contact Form ---
+            const form = document.getElementById('contact-form');
+            const status = document.getElementById('form-status');
+            
+            async function handleSubmit(event) {
+                event.preventDefault();
+                const data = new FormData(event.target);
+                status.textContent = 'Sending...';
+                status.style.color = 'var(--text-secondary)';
+                
+                fetch(event.target.action, {
+                    method: form.method,
+                    body: data,
+                    headers: { 'Accept': 'application/json' }
+                }).then(response => {
+                    if (response.ok) {
+                        status.textContent = "Thanks for your submission!";
+                        status.style.color = 'var(--accent-secondary)';
+                        form.reset();
+                    } else {
+                        response.json().then(data => {
+                            if (Object.hasOwn(data, 'errors')) {
+                                status.textContent = data["errors"].map(error => error["message"]).join(", ");
+                            } else {
+                                status.textContent = "Oops! There was a problem submitting your form";
+                            }
+                             status.style.color = 'red';
+                        })
+                    }
+                }).catch(error => {
+                    console.error("Form Submission Error:", error);
+                    status.textContent = "Oops! There was a problem submitting your form";
+                    status.style.color = 'red';
+                });
+            }
+            form.addEventListener("submit", handleSubmit);
+
+
+            // --- 8. Three.js Space Animation ---
+            let scene, camera, renderer, solarSystem, raycaster, starfield;
+            const mouse = new THREE.Vector2();
+            const canvas = document.getElementById('bg-canvas');
+            const asteroids = [];
+
+            function initThree() {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+                camera.position.z = 35;
+                
+                renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // Starfield for Milky Way effect
+                const starGeometry = new THREE.BufferGeometry();
+                const starCount = 20000;
+                const posArray = new Float32Array(starCount * 3);
+                for (let i = 0; i < starCount * 3; i+=3) {
+                    const r = 400 + Math.random() * 600;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    posArray[i] = r * Math.sin(phi) * Math.cos(theta); // x
+                    posArray[i+1] = r * Math.sin(phi) * Math.sin(theta); // y
+                    posArray[i+2] = r * Math.cos(phi); // z
+                }
+                starGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+                const starMaterial = new THREE.PointsMaterial({ size: 0.8, color: 0xaaaaaa, transparent: true, opacity: 0.8 });
+                starfield = new THREE.Points(starGeometry, starMaterial);
+                scene.add(starfield);
+
+                solarSystem = new THREE.Object3D();
+                scene.add(solarSystem);
+
+                // Sun
+                const sunGeometry = new THREE.SphereGeometry(4, 32, 32); 
+                const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xff4500, wireframe:true });
+                const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                solarSystem.add(sun);
+                const sunLight = new THREE.PointLight(0xffaa66, 2, 1200);
+                sun.add(sunLight);
+
+                const planetsData = [
+                    { name: "Mercury", size: 0.5, color: 0xaaaaaa, speed: 0.01, distance: 10 },
+                    { name: "Venus", size: 0.8, color: 0xffd700, speed: 0.007, distance: 15 },
+                    { name: "Earth", size: 1, color: 0x0077ff, speed: 0.005, distance: 22, moon: {size: 0.2, color: 0xcccccc, speed: 0.02, distance: 2} },
+                    { name: "Mars", size: 0.7, color: 0xff4500, speed: 0.004, distance: 30 },
+                    { name: "Jupiter", size: 3, color: 0xffa500, speed: 0.002, distance: 45 },
+                    { name: "Saturn", size: 2.5, color: 0xf0e68c, speed: 0.0015, distance: 60, ring: {inner: 3, outer: 4} },
+                    { name: "Uranus", size: 1.5, color: 0xadd8e6, speed: 0.001, distance: 75 },
+                    { name: "Neptune", size: 1.4, color: 0x0000ff, speed: 0.0008, distance: 88 }
+                ];
+                
+                planetsData.forEach(data => {
+                    const planetGeometry = new THREE.SphereGeometry(data.size, 16, 16);
+                    const planetMaterial = new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.8 });
+                    const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+                    
+                    const pivot = new THREE.Object3D();
+                    pivot.add(planet);
+                    solarSystem.add(pivot);
+                    planet.position.x = data.distance;
+                    planet.userData = { speed: data.speed, pivot: pivot };
+
+                    if (data.moon) {
+                        const moonGeo = new THREE.SphereGeometry(data.moon.size, 16, 16);
+                        const moonMat = new THREE.MeshStandardMaterial({ color: data.moon.color, roughness: 0.9 });
+                        const moon = new THREE.Mesh(moonGeo, moonMat);
+                        const moonPivot = new THREE.Object3D();
+                        moon.position.x = data.moon.distance;
+                        moonPivot.add(moon);
+                        planet.add(moonPivot);
+                        moon.userData = { speed: data.moon.speed, pivot: moonPivot };
+                    }
+                    if (data.ring) {
+                        const ringGeo = new THREE.RingGeometry(data.ring.inner, data.ring.outer, 32);
+                        const ringMat = new THREE.MeshBasicMaterial({ color: 0xaaa_aaa, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+                        const ring = new THREE.Mesh(ringGeo, ringMat);
+                        ring.rotation.x = Math.PI / 2;
+                        planet.add(ring);
+                    }
+                });
+
+                // Asteroids
+                const asteroidGeometry = new THREE.IcosahedronGeometry(0.1, 0);
+                for(let i = 0; i < 500; i++) {
+                    const asteroidMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 1 });
+                    const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 35 + Math.random() * 10;
+                    asteroid.position.set(Math.cos(angle) * distance, (Math.random() - 0.5) * 5, Math.sin(angle) * distance);
+                    asteroid.userData.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01, (Math.random() - 0.5) * 0.01);
+                    asteroids.push(asteroid);
+                    solarSystem.add(asteroid);
+                }
+
+                raycaster = new THREE.Raycaster();
+                document.addEventListener('mousedown', onDocumentMouseDown, false);
+            }
+            
+            function onDocumentMouseDown(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
+
+                const intersects = raycaster.intersectObjects(asteroids);
+                if (intersects.length > 0) {
+                    const target = intersects[0].object;
+                    let scale = 1;
+                    function shrink() {
+                        scale -= 0.1;
+                        if(scale <= 0){
+                            target.visible = false;
+                        } else {
+                            target.scale.set(scale, scale, scale);
+                            requestAnimationFrame(shrink);
+                        }
+                    }
+                    if(target.visible) shrink();
+                }
+            }
+            
+            let clock = new THREE.Clock();
+            function animateThree() {
+                requestAnimationFrame(animateThree);
+                const delta = clock.getDelta();
+                solarSystem.rotation.y += 0.0005;
+                if(starfield) starfield.rotation.y -= 0.00008;
+
+                solarSystem.children.forEach(obj => {
+                    if (obj.children.length > 0 && obj.children[0].userData && obj.children[0].userData.speed) {
+                         obj.children[0].userData.pivot.rotation.y += obj.children[0].userData.speed;
+                         if(obj.children[0].children.length > 0 && obj.children[0].children[0].userData && obj.children[0].children[0].userData.speed) {
+                            const moon = obj.children[0].children[0];
+                            moon.userData.pivot.rotation.y += moon.userData.speed;
+                         }
+                    }
+                });
+                
+                asteroids.forEach(asteroid => {
+                    if(asteroid.visible){
+                       asteroid.position.add(asteroid.userData.velocity);
+                       asteroid.rotation.x += 0.01;
+                       asteroid.rotation.y += 0.01;
+                    }
+                });
+                
+                renderer.render(scene, camera);
+            }
+            
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+             window.addEventListener('load', () => {
+                initThree();
+                animateThree();
+                window.addEventListener('resize', onWindowResize);
+             });
+        });
+    </script>
+</body>
+</html>
